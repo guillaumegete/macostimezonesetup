@@ -1,7 +1,23 @@
 #!/bin/bash
 # Displays a dialog to change the Mac's time zone. Must be launched from Jamf Self Service.
-# G. Gete - 04/11/2025
-# v1.1
+# G. Gete - 16/05/2025
+# v1.2
+
+
+# bool function to test if the user is root or not (POSIX only)
+is_user_root ()
+{
+	[ "$(id -u)" -eq 0 ]
+}
+
+if is_user_root; then
+	echo 'You are the almighty root!'
+	# You can do whatever you need...
+else
+	echo 'You are just an ordinary user.' >&2
+	exit 1
+fi
+
 
 # This script requires SwiftDialog. Following code provided by Adam Codega here: 
 # https://github.com/acodega/swiftDialogScripts/blob/main/dialogCheckFunction.sh
@@ -38,13 +54,56 @@ function dialogCheck(){
 
 dialogCheck
 
+# Language support based on work from SecondSonConsulting.
+# https://github.com/SecondSonConsulting/Renew/blob/d376f2f69aa17cd058281ae92cfcab4df79cb5e4/Renew.sh
+
+#########################
+#	Language Support	#
+#########################
+
+consoleUser=$(stat -f%Su /dev/console)
+
+languageList=( $(sudo -u "$consoleUser" defaults read .GlobalPreferences AppleLanguages) )
+
+languageChoice=${languageList[1]:1:2}
+
+echo "Language identified: $languageChoice"
+
+#To add additional language support, create a case statement for the 2 letter language prefix
+#For example: "en" for english or "es" for espaniol
+#Then enter the desired text for those strings.
+
+case "$languageChoice" in
+	fr)
+		#Define script default messaging FRENCH
+		dialogTitle="Fuseau horaire :"
+		bannerTitleLoc="Modifier le fuseau horaire"
+		messagePart1="Sélectionnez votre nouveau fuseau horaire dans la liste ci-dessous."
+		messagePart2="Fuseau horaire actuel :"
+		button1Text="Appliquer"
+		button2Text="Annuler"
+	;;
+	*)
+		##English is the default and fallback language
+		
+		#Define script default messaging ENGLISH
+		dialogTitle="Time zone:"
+		bannerTitleLoc="Change Time zone"
+		messagePart1="Select your new time zone from the list below."
+		messagePart2="Current time zone:"
+		button1Text="Apply"
+		button2Text="Cancel"
+	;;
+esac
+
+
 # Get the current time zone and associated continent
 
 currentTimeZone=$(systemsetup -gettimezone | cut -c 12-)
 listTimezones=$(systemsetup -listtimezones | grep -v Time | tr -d " " | tr "\n" ",")
 currentContinent=$(echo "$currentTimeZone" | awk -F "/" '{print $1}')
 
-echo "Current continent: $currentContinent" # May be used in a future version
+echo "Current continent: $currentContinent" #
 
 # Set the icon based on the continent — because why not.
 
@@ -59,7 +118,7 @@ case "$currentContinent" in
 		zoneIcon="globe"
 	;;
 	"Arctic")
-		zoneIcon="snowflake.circle,animation=pulse.bylayer"
+	zoneIcon="snowflake.circle,animation=pulse.bylayer"
 	;;
 	"Asia")
 		zoneIcon="globe.asia.australia.fill"
@@ -83,18 +142,21 @@ esac
 
 # Display the dialog
 
-newTimezone=$(dialog --selectitle "Time Zone:" \
+newTimezone=$(dialog --selectitle "$dialogTitle" \
 --selectvalues "$listTimezones" \
 --selectdefault "$currentTimeZone" \
 --icon "sf=$zoneIcon,color=green" --overlayicon "sf=clock.fill,color=green,bgcolor=none" \
---message "Select your new time zone from the list below.  \n\n**Current time zone: $currentTimeZone**" \
---bannertitle "Change Time Zone" \
+--message "$messagePart1  \n\n**$messagePart2 $currentTimeZone**" \
+--bannertitle "$bannerTitleLoc" \
 --bannerheight 64 \
 --bannerimage colour=green \
---button1text "Apply" \
---button2text "Cancel" | grep "SelectedOption" | awk -F " : " '{print $NF}' | tr -d '"')
+--button1text "$button1Text" \
+--button2text "$button2Text")
+dialogExitCode=$?	
 
-case $? in
+newTimezone=$(echo "$newTimezone" | grep "SelectedOption" | awk -F " : " '{print $NF}' | tr -d '"')
+
+case ${dialogExitCode} in
 	0)
 		echo "OK clicked"
 		echo "New time zone: $newTimezone"
