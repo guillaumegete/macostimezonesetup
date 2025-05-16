@@ -1,6 +1,6 @@
-# macostimezonesetup
+# macOS Time zone setup
 
-Script to use in Jamf Pro to allow a non-admin user to change its timezone via Self Service
+Script to use in Jamf Pro to allow a non-admin user to change its timezone via Self Service.
 
 I encounter an issue with one of my customers where they don't want to enforce Location Services, but still want a non-admin user to change the timezone for its Mac.
 
