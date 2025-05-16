@@ -1,5 +1,5 @@
 #!/bin/bash
-# Displays a dialog to change the Mac's time zone. Must be launched from Jamf Self Service.
+# Displays a dialog to change the Mac's time zone. Must be launched from Jamf Self Service, and requires admin privileges to run.
 # G. Gete - 16/05/2025
 # v1.2
 
@@ -11,10 +11,10 @@ is_user_root ()
 }
 
 if is_user_root; then
-	echo 'You are the almighty root!'
-	# You can do whatever you need...
+	echo "This script runs with admin privileges. We can go on..."
+
 else
-	echo 'You are just an ordinary user.' >&2
+	echo "This script needs administrator privileges. Exiting..." >&2
 	exit 1
 fi
 
