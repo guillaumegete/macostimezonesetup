@@ -12,4 +12,4 @@ Add the script in Jamf Pro, create a policy in Jamf Pro, and set it up as a Self
 
 # Icon
 
-I designed icons with SFSymbol to customize your Self Service policy. Feel free to use any of them according to your region.
+I added icons created with SFSymbol to customize your Self Service policy. Feel free to use any of them according to your region.
