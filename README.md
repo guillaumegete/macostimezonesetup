@@ -8,9 +8,8 @@ The script relies on the wonderful [SwiftDialog](https://github.com/swiftDialog)
 
 ## How to use
 
-Add the script in Jamf Pro, create a policy in Jamf Pro, and set it up as a Self Service policy. The policy should just need to run the script. That's it.
+Add the script in Jamf Pro, create a policy in Jamf Pro, and set it up as a Self Service policy. The policy should just need to run the script. That's it. You should make the policy on an Ongoing frequency. No need to require an Inventory update each time.
 
 # Icon
 
-I designed icons with SFSymbol to customize your Self Service policy. Feel free to use any of them.
-
+I designed icons with SFSymbol to customize your Self Service policy. Feel free to use any of them according to your region.
